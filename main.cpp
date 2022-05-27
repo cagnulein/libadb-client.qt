@@ -1,16 +1,17 @@
-#include <QCoreApplication>
 #include "adbclient.h"
+#include <QCoreApplication>
 #include <QDebug>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);
 
     AdbClient adb;
 
     QStringList adbArgs;
     if (argc <= 1) {
-        adbArgs << "sh" << "-c" << "'echo shit'";
+        adbArgs << "sh"
+                << "-c"
+                << "'echo shit'";
     } else if (QString(argv[1]) == "push" && argc == 4) {
         adb.doAdbPush(argv[2], argv[3]);
         return 0;
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    qDebug() << "adb shell" << adb.doAdbShell(adbArgs);
+    qDebug() << "adb shell" << adb.doAdbShell("ls");
 
     return 0;
 }
