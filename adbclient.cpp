@@ -33,13 +33,16 @@ bool AdbClient::readx(void *data, qint64 max) {
 
 bool _writex(QIODevice &io, const void *data, qint64 max) {
     int done = 0;
+    qDebug() << "_writex" << data << max;
     while (max > done) {
         int n = io.write((char *)data + done, max - done);
         if (n <= 0) {
+            qDebug() << "_writex return false" << done << n;
             return false;
         }
         done += n;
     }
+    qDebug() << "_writex return true";
     return true;
 }
 
@@ -90,16 +93,21 @@ bool AdbClient::switch_socket_transport() {
     char tmp[5];
     int len;
 
+    qDebug() << "switch_socket_transport" << __adb_serial;
     if (__adb_serial) {
         snprintf(service, sizeof service, "host:transport:%s", __adb_serial);
     } else {
         snprintf(service, sizeof service, "host:%s", "transport-any");
     }
+    qDebug() << "switch_socket_transport" << service;
     len = strlen(service);
+    qDebug() << "switch_socket_transport" << len;
     snprintf(tmp, sizeof tmp, "%04x", len);
+    qDebug() << "switch_socket_transport" << tmp;
 
     if (!writex(tmp, 4) || !writex(service, len)) {
         __adb_error = "write failure during connection";
+        qDebug() << "switch_socket_transport" << __adb_error;
         return false;
     }
 
