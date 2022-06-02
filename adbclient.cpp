@@ -21,14 +21,17 @@ bool AdbClient::readx(void *data, qint64 max) {
     while (max > done) {
         int n = adbSock.read((char *)data + done, max - done);
         if (n < 0) {
+            qDebug() << "readx return false" << n;
             return false;
         } else if (n == 0) {
             if (!adbSock.waitForReadyRead()) {
+                qDebug() << "readx return false";
                 return false;
             }
         }
         done += n;
     }
+    qDebug() << "readx return true";
     return true;
 }
 
@@ -57,20 +60,24 @@ bool AdbClient::adb_status() {
 
     if (!readx(buf, 4)) {
         __adb_error = "protocol fault (no status)";
+        qDebug() << "adb_status return false" << buf << __adb_error;
         return false;
     }
 
     if (!memcmp(buf, "OKAY", 4)) {
+        qDebug() << "adb_status return true";
         return true;
     }
 
     if (memcmp(buf, "FAIL", 4)) {
         __adb_error.sprintf("protocol fault (status %02x %02x %02x %02x?!)", buf[0], buf[1], buf[2], buf[3]);
+        qDebug() << "adb_status return false" << buf << __adb_error;
         return false;
     }
 
     if (!readx(buf, 4)) {
         __adb_error = "protocol fault (status len)";
+        qDebug() << "adb_status return false" << buf << __adb_error;
         return false;
     }
 
@@ -82,10 +89,12 @@ bool AdbClient::adb_status() {
     char buf2[256];
     if (!readx(buf2, len)) {
         __adb_error = "protocol fault (status read)";
+        qDebug() << "adb_status return false" << buf2 << len << __adb_error;
         return false;
     }
     buf2[len] = 0;
     __adb_error = buf2;
+    qDebug() << "adb_status return false" << __adb_error;
     return false;
 }
 
